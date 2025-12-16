@@ -260,7 +260,7 @@ model Sale {
 model SaleDetail {
   id        Int     @id @default(autoincrement())
   saleId    Int
-  sale      Sale    @relation(fields: [saleId], references: [id])
+  sale      Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
   productId Int
   product   Product @relation(fields: [productId], references: [id])
   quantity  Float

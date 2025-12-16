@@ -102,3 +102,27 @@ export const getSales = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const deleteSaleDay = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const sale = await prisma.sale.findFirst({
+      where: {
+        id: +id,
+        organizationId: req.user.organizationId,
+      },
+    });
+    if (!sale) {
+      const error = new Error("La venta no existe");
+      return res.status(404).json({ error: error.message });
+    }
+    await prisma.sale.delete({
+      where: {
+        id: sale.id,
+      },
+    });
+    res.send("Venta eliminada correctamente");
+  } catch (error) {
+    res.status(500).json({ error: "Error al eliminar la venta" });
+  }
+};

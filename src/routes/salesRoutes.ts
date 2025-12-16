@@ -2,7 +2,11 @@ import { Router } from "express";
 import { isAuthenticated } from "../middleware/auth";
 import { handleInputErrors } from "../middleware/validation";
 import { body, param } from "express-validator";
-import { createSale, getSales } from "../controllers/SalesController";
+import {
+  createSale,
+  deleteSaleDay,
+  getSales,
+} from "../controllers/SalesController";
 const router = Router();
 
 router.post(
@@ -26,5 +30,7 @@ router.get(
   param("date").isString().withMessage("La fecha no es valida"),
   getSales
 );
+
+router.delete("/delete-sale/:id", isAuthenticated, deleteSaleDay);
 
 export default router;
