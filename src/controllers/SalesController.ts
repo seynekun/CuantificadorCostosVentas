@@ -103,6 +103,47 @@ export const getSales = async (req: Request, res: Response) => {
   }
 };
 
+export const getSalesByDateMes = async (req: Request, res: Response) => {
+  try {
+    const dateFrom = req.query.dateFrom as string;
+    const dateTo = req.query.dateTo as string;
+    if (dateFrom && dateTo) {
+      const dateFromParsed = parseISO(dateFrom);
+      if (!isValid(dateFromParsed)) {
+        throw new Error("La fecha no es valida");
+      }
+      const dateToParsed = parseISO(dateTo);
+      if (!isValid(dateToParsed)) {
+        throw new Error("La fecha no es valida");
+      }
+      const startOfDayDate = startOfDay(dateFrom);
+      const endOfDayDate = endOfDay(dateTo);
+
+      const sales = await prisma.sale.findMany({
+        where: {
+          organizationId: req.user.organizationId,
+          date: {
+            gte: startOfDayDate,
+            lte: endOfDayDate,
+          },
+        },
+        include: {
+          salesDetails: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
+      res.send(sales);
+    }
+  } catch (error) {
+    res.status(400).json({
+      error: error.message || "Error al obtener las ventas",
+    });
+  }
+};
+
 export const deleteSaleDay = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;

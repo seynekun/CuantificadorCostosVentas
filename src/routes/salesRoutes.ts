@@ -6,6 +6,7 @@ import {
   createSale,
   deleteSaleDay,
   getSales,
+  getSalesByDateMes,
 } from "../controllers/SalesController";
 const router = Router();
 
@@ -29,6 +30,14 @@ router.get(
   isAuthenticated,
   param("date").isString().withMessage("La fecha no es valida"),
   getSales
+);
+
+router.get(
+  "/sales-by-date-mes",
+  isAuthenticated,
+  param("dateFrom").isString().withMessage("La fecha no es valida"),
+  param("dateTo").isString().withMessage("La fecha no es valida"),
+  getSalesByDateMes
 );
 
 router.delete("/delete-sale/:id", isAuthenticated, deleteSaleDay);
