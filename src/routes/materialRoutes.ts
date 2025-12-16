@@ -9,7 +9,7 @@ import {
   getMateriaPrimas,
   searchMaterialPrima,
   updateMateriaPrima,
-} from "../controllers/materialController";
+} from "../controllers/MaterialController";
 
 const router = Router();
 
