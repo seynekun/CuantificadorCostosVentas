@@ -1,0 +1,104 @@
+import { Request, Response } from "express";
+import { prisma } from "../config/prisma";
+import { SaleDetail } from "@prisma/client";
+import { endOfDay, isValid, parseISO, startOfDay } from "date-fns";
+
+export const createSale = async (req: Request, res: Response) => {
+  try {
+    const { name, nit, metodoPago, observaciones, saleDetails } = req.body;
+
+    await prisma.$transaction(async (tx) => {
+      const total = saleDetails.reduce(
+        (acc: number, item: any) => acc + item.quantity * item.price,
+        0
+      );
+
+      await tx.sale.create({
+        data: {
+          date: new Date(),
+          total,
+          name,
+          nit,
+          metodoPago,
+          observaciones,
+          organizationId: req.user.organizationId,
+          salesDetails: {
+            create: saleDetails.map((item: any) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              unitprice: item.price,
+            })),
+          },
+        },
+      });
+
+      for (const item of saleDetails) {
+        const product = await tx.product.findUnique({
+          where: { id: item.productId },
+        });
+
+        if (!product) {
+          throw new Error("Producto no encontrado");
+        }
+
+        if (product.inventory < item.quantity) {
+          throw new Error(
+            `Inventario insuficiente para el producto ${product.name}`
+          );
+        }
+
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            inventory: {
+              decrement: item.quantity,
+            },
+          },
+        });
+      }
+    });
+
+    res.send("Venta realizada correctamente");
+  } catch (error) {
+    res.status(400).json({
+      error: error.message || "Error al crear la venta",
+    });
+  }
+};
+
+export const getSales = async (req: Request, res: Response) => {
+  try {
+    const transactionDate = req.query.date as string;
+    if (transactionDate) {
+      const date = parseISO(transactionDate);
+      if (!isValid(date)) {
+        throw new Error("La fecha no es valida");
+      }
+      const start = startOfDay(date);
+      const end = endOfDay(date);
+
+      const sales = await prisma.sale.findMany({
+        where: {
+          organizationId: req.user.organizationId,
+          date: {
+            gte: start,
+            lte: end,
+          },
+        },
+        include: {
+          salesDetails: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
+
+      res.send(sales);
+    }
+  } catch (error) {
+    res.status(400).json({
+      error: error.message || "Error al obtener las ventas",
+    });
+  }
+};

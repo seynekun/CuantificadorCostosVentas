@@ -1,0 +1,268 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  USER
+}
+
+model User {
+  id             String        @id @default(uuid())
+  name           String
+  email          String
+  password       String
+  confirmed      Boolean
+  roles          String[]      @default(["user"])
+  token          String        @default("")
+  image          String?
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Organization {
+  id           String         @id @default(uuid())
+  name         String         @unique
+  nit          String         @unique
+  users        User[]
+  materias     MateriaPrima[]
+  productos    Productos[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  UnidadMedida UnidadMedida[]
+
+  MateriaPrimaDirecta         MateriaPrimaDirecta[]
+  ManoObraDirecta             ManoObraDirecta[]
+  CostosIndirectosFabricacion CostosIndirectosFabricacion[]
+  ManoObraIndirecta           ManoObraIndirecta[]
+  CostosGenerales             CostosGenerales[]
+  CostosOperacion             CostosOperacion[]
+  GastosVentas                GastosVentas[]
+  CostosProduccion            CostosProduccion[]
+  ServicioPublico             ServicioPublico[]
+  RegistroCostoProduccion     RegistroCostoProduccion[]
+  Product                     Product[]
+  category                    Category[]
+  Sale                        Sale[]
+}
+
+model UnidadMedida {
+  id             Int          @id @default(autoincrement())
+  name           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model MateriaPrima {
+  id             Int          @id @default(autoincrement())
+  nombre         String
+  organizacionId String
+  organizacion   Organization @relation(fields: [organizacionId], references: [id])
+}
+
+model Productos {
+  id                      Int                       @id @default(autoincrement())
+  nombre                  String
+  organizacionId          String
+  organizacion            Organization              @relation(fields: [organizacionId], references: [id])
+  RegistroCostoProduccion RegistroCostoProduccion[]
+}
+
+model MateriaPrimaDirecta {
+  id             Int                      @id @default(autoincrement())
+  registroId     String?
+  registro       RegistroCostoProduccion? @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  name           String
+  unidadMedida   String
+  cantidad       Float
+  costoUnitario  Float
+  costoTotal     Float
+  organizationId String?
+  Organization   Organization?            @relation(fields: [organizationId], references: [id])
+}
+
+model ManoObraDirecta {
+  id             Int                      @id @default(autoincrement())
+  nombre         String
+  unidadMedida   String
+  cantidad       Float
+  costoUnitario  Float
+  costoTotal     Float
+  organizationId String
+  organization   Organization             @relation(fields: [organizationId], references: [id])
+  registroId     String?
+  registro       RegistroCostoProduccion? @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  createdAt      DateTime                 @default(now())
+}
+
+model CostosIndirectosFabricacion {
+  id             Int                      @id @default(autoincrement())
+  nombre         String
+  unidadMedida   String
+  cantidad       Float
+  costoUnitario  Float
+  costoTotal     Float
+  organizationId String
+  organization   Organization             @relation(fields: [organizationId], references: [id])
+  registroId     String?
+  registro       RegistroCostoProduccion? @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  createdAt      DateTime                 @default(now())
+}
+
+model ManoObraIndirecta {
+  id             Int                      @id @default(autoincrement())
+  nombre         String
+  unidadMedida   String
+  cantidad       Float
+  costoUnitario  Float
+  costoTotal     Float
+  organizationId String
+  organization   Organization             @relation(fields: [organizationId], references: [id])
+  registroId     String?
+  registro       RegistroCostoProduccion? @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  createdAt      DateTime                 @default(now())
+}
+
+model CostosGenerales {
+  id             Int                      @id @default(autoincrement())
+  nombre         String
+  valorTotal     Float
+  organizationId String
+  organization   Organization             @relation(fields: [organizationId], references: [id])
+  registroId     String?
+  registro       RegistroCostoProduccion? @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  createdAt      DateTime                 @default(now())
+}
+
+model CostosOperacion {
+  id             Int                      @id @default(autoincrement())
+  nombre         String
+  valorTotal     Float
+  organizationId String
+  organization   Organization             @relation(fields: [organizationId], references: [id])
+  registroId     String?
+  registro       RegistroCostoProduccion? @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  createdAt      DateTime                 @default(now())
+}
+
+model GastosVentas {
+  id             Int                      @id @default(autoincrement())
+  nombre         String
+  valorTotal     Float
+  organizationId String
+  organization   Organization             @relation(fields: [organizationId], references: [id])
+  registroId     String?
+  registro       RegistroCostoProduccion? @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  createdAt      DateTime                 @default(now())
+}
+
+model CostosProduccion {
+  id                           String                  @id @default(uuid())
+  registroId                   String                  @unique
+  registro                     RegistroCostoProduccion @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  totalGastosMercadeo          Float?
+  totalCostosOperacion         Float?
+  totalGastosProduccion        Float?
+  totalCostoProduccionUnitario Float?
+  precioVentaUnitario          Float?
+  precioCalculado              Float?
+  margenUtilidadUnitario       Float?
+  margenDeseado                Float?
+  impuestos                    Float?
+  costosFinancieros            Float?
+  otrosGastos                  Float?
+  margenUtilidadNeto           Float?
+  createdAt                    DateTime                @default(now())
+  updatedAt                    DateTime                @updatedAt
+  organizationId               String?
+  Organization                 Organization?           @relation(fields: [organizationId], references: [id])
+}
+
+model ServicioPublico {
+  id                  Int                      @id @default(autoincrement())
+  nombre              String
+  porcentaje          Float
+  vinculadoProduccion Boolean
+  organizationId      String
+  organization        Organization             @relation(fields: [organizationId], references: [id])
+  registroId          String?
+  registro            RegistroCostoProduccion? @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  createdAt           DateTime                 @default(now())
+}
+
+model RegistroCostoProduccion {
+  id                          String                        @id @default(uuid())
+  date                        DateTime                      @default(now())
+  productoId                  Int
+  producto                    Productos                     @relation(fields: [productoId], references: [id])
+  organizationId              String
+  organization                Organization                  @relation(fields: [organizationId], references: [id])
+  unidadMedida                String
+  cantidadProducida           Float
+  perdidasEstimadas           Float
+  cantidadesFinales           Float
+  materiaPrimaDirecta         MateriaPrimaDirecta[]
+  manoObraDirecta             ManoObraDirecta[]
+  costosIndirectosFabricacion CostosIndirectosFabricacion[]
+  manoObraIndirecta           ManoObraIndirecta[]
+  serviciosPublicos           ServicioPublico[]
+  costosGenerales             CostosGenerales[]
+  costosOperacion             CostosOperacion[]
+  gastosVentas                GastosVentas[]
+  costoProduccion             CostosProduccion?
+  createdAt                   DateTime                      @default(now())
+}
+
+// Ventas
+model Category {
+  id             Int          @id @default(autoincrement())
+  name           String       @unique
+  products       Product[]
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model Product {
+  id             Int          @id @default(autoincrement())
+  name           String
+  price          Float
+  image          String
+  inventory      Float
+  categoryId     Int
+  category       Category     @relation(fields: [categoryId], references: [id])
+  organizationId String
+  tipoUnidad     Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  saleItems      SaleDetail[]
+}
+
+model Sale {
+  id             Int          @id @default(autoincrement())
+  date           DateTime     @default(now())
+  total          Float
+  name           String
+  nit            String
+  metodoPago     String
+  observaciones  String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  salesDetails   SaleDetail[]
+}
+
+model SaleDetail {
+  id        Int     @id @default(autoincrement())
+  saleId    Int
+  sale      Sale    @relation(fields: [saleId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Float
+  unitprice Float
+}
