@@ -5,7 +5,8 @@ import { endOfDay, isValid, parseISO, startOfDay } from "date-fns";
 
 export const createSale = async (req: Request, res: Response) => {
   try {
-    const { name, nit, metodoPago, observaciones, saleDetails } = req.body;
+    const { name, nit, metodoPago, observaciones, saleDetails, date } =
+      req.body;
 
     await prisma.$transaction(async (tx) => {
       const total = saleDetails.reduce(
@@ -15,7 +16,7 @@ export const createSale = async (req: Request, res: Response) => {
 
       await tx.sale.create({
         data: {
-          date: new Date(),
+          date: date ? new Date(date) : new Date(),
           total,
           name,
           nit,
