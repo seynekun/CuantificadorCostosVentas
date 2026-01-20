@@ -24,7 +24,6 @@ export const createCosts = async (req: Request, res: Response) => {
     } = req.body;
 
     const organizationId = req.user.organizationId;
-    const dateFormat = format(date, "dd/MM/yyyy HH:mm:mm");
 
     if (!organizationId || !productoId) {
       return res.status(400).json({ error: "Faltan datos obligatorios" });
@@ -32,7 +31,7 @@ export const createCosts = async (req: Request, res: Response) => {
 
     const registro = await prisma.registroCostoProduccion.create({
       data: {
-        date: new Date(date),
+        date: date ? new Date(date) : new Date(),
         producto: { connect: { id: +productoId } },
         organization: { connect: { id: organizationId } },
         unidadMedida,
