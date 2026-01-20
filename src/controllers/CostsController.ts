@@ -11,7 +11,7 @@ export const createCosts = async (req: Request, res: Response) => {
       cantidadProducida,
       perdidasEstimadas,
       cantidadesFinales,
-      date = new Date(),
+      date,
       materiaPrimaDirecta = [],
       manoObraDirecta = [],
       costosIndirectosFabricacion = [],
@@ -24,6 +24,7 @@ export const createCosts = async (req: Request, res: Response) => {
     } = req.body;
 
     const organizationId = req.user.organizationId;
+    const dateFormat = format(date, "dd/MM/yyyy HH:mm:mm");
 
     if (!organizationId || !productoId) {
       return res.status(400).json({ error: "Faltan datos obligatorios" });
@@ -178,7 +179,7 @@ export const getAllRegistrosCostos = async (req: Request, res: Response) => {
   try {
     const registros = await prisma.registroCostoProduccion.findMany({
       orderBy: {
-        createdAt: "desc",
+        date: "desc",
       },
       include: {
         producto: true,
