@@ -10,6 +10,7 @@ import {
   getProductById,
   productCount,
   getProductByCategoryId,
+  updatePriceProduct,
 } from "../controllers/ProductsStoreController";
 
 const router = Router();
@@ -37,6 +38,7 @@ router.get(
 );
 router.get("/get-products-count", isAuthenticated, productCount);
 router.patch("/update-product/:id", isAuthenticated, updateProduct);
+router.patch("/update-price/:id", isAuthenticated, updatePriceProduct);
 router.post("/upload-image/:id", isAuthenticated, uploadImage);
 router.post("/upload-image", isAuthenticated, uploadImage);
 

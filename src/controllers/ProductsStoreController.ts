@@ -70,6 +70,35 @@ export const updateProduct = async (req: Request, res: Response) => {
   }
 };
 
+export const updatePriceProduct = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { price } = req.body;
+    const product = await prisma.product.findFirst({
+      where: {
+        id: +id,
+        organizationId: req.user.organizationId,
+      },
+    });
+    if (!product) {
+      const error = new Error("Producto no encontrado");
+      return res.status(404).json({ error: error.message });
+    }
+    await prisma.product.update({
+      where: {
+        id: product.id,
+      },
+      data: {
+        price: +price,
+      },
+    });
+    res.send("Producto actualizado correctamente");
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error al actualizar el producto" });
+  }
+};
+
 export const getProductById = async (req: Request, res: Response) => {
   try {
     const product = await prisma.product.findFirst({
