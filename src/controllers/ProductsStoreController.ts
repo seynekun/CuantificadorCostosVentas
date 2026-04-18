@@ -180,6 +180,19 @@ export const deleteProduct = async (req: Request, res: Response) => {
       const error = new Error("Producto no encontrado");
       return res.status(404).json({ error: error.message });
     }
+
+    const productExistSale = await prisma.saleDetail.findFirst({
+      where: {
+        id: +req.params.id,
+      },
+    });
+    if (productExistSale) {
+      const error = new Error(
+        "El producto no se puede porque esta asociado a una venta",
+      );
+      return res.status(409).json({ error: error.message });
+    }
+
     await prisma.product.delete({
       where: {
         id: product.id,
@@ -205,7 +218,7 @@ const parseForm = (req: Request): Promise<{ fields: any; files: any }> => {
 export const uploadImage = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<any> => {
   try {
     const { id } = req.params;
@@ -232,5 +245,11 @@ export const uploadImage = async (
       error: "Hubo un error al procesar la imagen",
       details: error?.message,
     });
+  }
+};
+export const deleteProductStore = async (req: Request, res: Response) => {
+  try {
+  } catch (error) {
+    res.status(500).json({ error: "Error al eliminar el Producto" });
   }
 };

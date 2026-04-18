@@ -11,6 +11,7 @@ import {
   productCount,
   getProductByCategoryId,
   updatePriceProduct,
+  deleteProduct,
 } from "../controllers/ProductsStoreController";
 
 const router = Router();
@@ -20,24 +21,25 @@ router.post(
   body("name").isLength({ min: 1 }).withMessage("Nombre inválido"),
   handleInputErrors,
   isAuthenticated,
-  createProduct
+  createProduct,
 );
 router.patch(
   "/update-product/:id",
   body("name").isLength({ min: 1 }).withMessage("Nombre inválido"),
   handleInputErrors,
   isAuthenticated,
-  updateProduct
+  updateProduct,
 );
 router.get("/get-product-by-id/:id", isAuthenticated, getProductById);
 router.get("/get-products", isAuthenticated, getProducts);
 router.get(
   "/get-products-by-category/:id",
   isAuthenticated,
-  getProductByCategoryId
+  getProductByCategoryId,
 );
 router.get("/get-products-count", isAuthenticated, productCount);
 router.patch("/update-product/:id", isAuthenticated, updateProduct);
+router.delete("/delete-product/:id", isAuthenticated, deleteProduct);
 router.patch("/update-price/:id", isAuthenticated, updatePriceProduct);
 router.post("/upload-image/:id", isAuthenticated, uploadImage);
 router.post("/upload-image", isAuthenticated, uploadImage);
