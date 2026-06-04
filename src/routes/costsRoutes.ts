@@ -7,11 +7,13 @@ import {
   getEvolucionCostos,
   getRegistroCompleto,
   deleteCost,
+  updateCost,
 } from "../controllers/CostsController";
 
 const router = Router();
 
 router.post("/create-costs", isAuthenticated, createCosts);
+router.patch("/update-cost/:id", isAuthenticated, updateCost);
 router.get("/get-all-costs", isAuthenticated, getAllRegistrosCostos);
 router.get("/get-cost-by-id/:id", isAuthenticated, getRegistroCompleto);
 router.get("/get-evolution-costs", isAuthenticated, getEvolucionCostos);
